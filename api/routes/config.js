@@ -14,8 +14,13 @@ router.get("/", async (req, res) => {
     const data = await Config.findOne({ guildID: req.body["guildID"] });
 
     if (!data) return res.status(404).send({ error: "Guild not found" });
-
-    res.send(data);
+    let newData = {
+        guildID: data.guildID,
+        channelID: data.channelID,
+        userID: data.userID,
+        language: data.language,
+    };
+    res.send(newData);
 });
 
 // This is for the guildCreate event on the bot
@@ -31,8 +36,8 @@ router.post("/", async (req, res) => {
     try {
         const saved = await data.save();
         res.send({
+            code: 200,
             message: "Config Saved for guildID: " + req.body["guildID"],
-            data: saved,
         });
     } catch (err) {
         res.status(400).send(err);
@@ -103,6 +108,7 @@ router.patch("/", async (req, res) => {
                 .send({ error: "There's no config values to update." });
         }
         res.send({
+            code: 200,
             message: "Config updated for guildID: " + req.body["guildID"],
         });
     } catch (err) {
@@ -123,6 +129,7 @@ router.delete("/", async (req, res) => {
                 .send({ error: "There's no config values to delete." });
         }
         res.send({
+            code: 200,
             message: "Config deleted for guildID: " + req.body["guildID"],
         });
     } catch (err) {
