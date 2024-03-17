@@ -18,27 +18,16 @@ router.get("/", async (req, res, next) => {
         if (!data) return res.status(404).send({ error: "Guild not found." });
 
         let dataToSend = req.app.locals[data.language];
-
-        res.send(dataToSend);
+        let newData = {
+            code: 200,
+            guildID: data.guildID,
+            language: dataToSend
+        }
+        res.send(newData);
     } catch (err) {
         res.status(500).send({ error: "Internal server error." });
     }
 });
 
-router.get("/:lang/:key", (req, res, next) => {
-    const key = req.params.key;
-    const lang = req.params.lang;
-    if (!req.app.locals[lang]) {
-        return res.status(404).send({
-            error: "Language not found.",
-        });
-    }
-    const data = req.app.locals[lang][key];
-    if (!data)
-        return res.status(404).send({
-            error: "Key not found.",
-        });
-    res.send({ value: data });
-});
 
 module.exports = router;

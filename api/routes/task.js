@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
             .status(404)
             .send({ error: `No tasks found for ${req.body["guildID"]}` });
 
-    res.send(newData);
+    res.send({data: newData});
 });
 
 router.post("/", async (req, res) => {
@@ -63,28 +63,23 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.patch("/", async (req, res) => {
-    if (!req.body["id"])
+router.patch("/:id", async (req, res) => {
+    if (!req.params.id)
         return res.status(400).send({ error: "Missing field: id" });
-
+    if (!req.body["status"])
+        return res.status(400).send({ error: "Missing field: status" });
     try {
-        switch (true) {
-            case !!req.body["status"]:
-                await Task.updateOne(
-                    {
-                        id: req.body["id"],
-                    },
-                    {
-                        status: req.body["status"],
-                    }
-                );
-                break;
-            default:
-                return res.status(400).send({ error: "Invalid request" });
-        }
+        await Task.updateOne(
+            {
+                id: req.params.id,
+            },
+            {
+                status: req.body["status"],
+            }
+        );
         res.send({
             code: 200,
-            message: "Task Updated for id: " + req.body["id"],
+            message: "Task Updated for id: " + req.params.id,
         });
     } catch (err) {
         res.status(400).send(err);
