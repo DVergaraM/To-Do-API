@@ -29,6 +29,8 @@ const taskSchema = mongoose.Schema({
     },
 });
 
-taskSchema.plugin(AutoIncrement, {inc_field: 'id'});
+taskSchema.plugin(AutoIncrement, {
+    inc_field: 'id'
+});
 
-module.exports = connection.model('Task', taskSchema);
+module.exports = mongoose.model('Task', taskSchema);
