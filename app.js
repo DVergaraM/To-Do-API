@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const languageRoutes = require("./api/routes/language");
 const configRoutes = require("./api/routes/config");
 const taskRoutes = require('./api/routes/task');
+const reminderRoutes = require('./api/routes/reminder');
+const userRoutes = require('./api/routes/users');
 const setLocals = require("./methods");
 require("dotenv").config();
 
@@ -29,5 +31,24 @@ app.use((req, res, next) => {
 app.use("/language", languageRoutes);
 app.use("/config", configRoutes);
 app.use('/tasks', taskRoutes);
+app.use('/reminders', reminderRoutes);
+app.use('/users', userRoutes);
+
+// Error handling middleware should be placed after the routes
+app.use((req, res, next) => {
+    const error = new Error("Not found");
+    error.status = 404;
+    next(error);
+});
+
+app.use((err, req, res, next) => {
+    res.status(err.status || 500);
+    res.json({
+        error: {
+            message: err.message,
+        },
+    });
+    
+})
 
 module.exports = app;

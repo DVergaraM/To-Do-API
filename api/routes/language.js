@@ -6,11 +6,19 @@ const Config = require("../models/config");
 
 router.use(express.json());
 
+/*
+* / GET Language by the Guild ID
+*/
+
 router.get("/", async (req, res, next) => {
-    if (!req.body["guildID"])
-        return res.status(400).send({
-            error: 'Missing parameter "guildID". Please provide a valid guild ID.',
-        });
+    if (!req.body["guildID"]) {
+        let newData = {
+            code: 200,
+            language: req.app.locals["en"]
+        }
+        res.send(newData);
+        return;
+    }
 
     try {
         const data = await Config.findOne({ guildID: req.body["guildID"] });
