@@ -6,7 +6,14 @@ const Config = require("../models/config");
 
 router.use(express.json());
 
-// This is for the /config execution on the bot
+/**
+ * / GET the config saved for the guild with id 'guildId'
+ * /guilds GET all guilds with saved config
+ * / POST Create a new Config for a specific guild
+ * / PATCH Update the config for a specific guild
+ * / DELETE Delete the config for a specific guild
+ */
+
 router.get("/", async (req, res) => {
     if (!req.body["guildID"])
         return res.status(400).send({ error: "Missing required fields" });
@@ -23,7 +30,17 @@ router.get("/", async (req, res) => {
     res.send(newData);
 });
 
-// This is for the guildCreate event on the bot
+router.get("/guilds", async (req, res) => {
+    try {
+        const data = await Config.find({}, 'guildID');
+        const guildIDs = data.map(config => config.guildID);
+        res.send(guildIDs);
+    } catch (err) {
+        res.status(500).send({ error: "Error interno del servidor." });
+        console.log(err);
+    }
+});
+
 router.post("/", async (req, res) => {
     if (!req.body["guildID"] || !req.body["language"])
         return res.status(400).send({ error: "Missing required fields" });
@@ -34,7 +51,7 @@ router.post("/", async (req, res) => {
     });
 
     try {
-        const saved = await data.save();
+        await data.save();
         res.send({
             code: 200,
             message: "Config Saved for guildID: " + req.body["guildID"],
@@ -96,8 +113,8 @@ router.patch("/", async (req, res) => {
                     },
                     {
                         $set: {
-                            channelID: "0",
-                            userID: "0",
+                            channelID: "",
+                            userID: "",
                         },
                     }
                 );

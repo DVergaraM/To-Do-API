@@ -8,12 +8,12 @@ const configSchema = mongoose.Schema({
     channelID: {
         type: String,
         required: true,
-        default: "0",
+        default: "",
     },
     userID: {
         type: String,
         required: true,
-        default: "0",
+        default: "",
     },
     language: {
         type: String,
