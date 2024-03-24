@@ -12,7 +12,7 @@ router.use(express.json());
  */
 
 router.get('/', async (req, res) => {
-    try{
+    try {
         const reminders = await Reminder.find();
         res.json(reminders);
     } catch (err) {
@@ -89,19 +89,25 @@ router.post('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
     if (!req.body["id"] || !req.body["userID"])
-        return res.status(400).send({ error: "Missing required fileds id, userID" });
+        return res.status(400).send({ error: "Missing required fields id, userID" });
 
     let user = await User.findOne({ userID: req.body["userID"] });
-    let reminder = await Reminder.findOne({ reminderID: req.body["id"] });
     if (!user)
         return res.status(404).send({ error: "User not found" });
 
-    reminder = user.reminders.find(reminder => reminder == reminder._id);
-    if (!reminder)
+    let reminderFound = await Reminder.findOne({ reminderID: req.body["id"] });
+    if (!reminderFound)
         return res.status(404).send({ error: "Reminder not found" });
 
-    user.reminders = user.reminders.filter(reminder => reminder != reminder._id);
+    let reminderToDelete = user.reminders.find(reminder => reminder._id.toString() == reminderFound._id.toString());    
+    console.log(reminderToDelete, user.reminders, reminderFound._id)
+    if (!reminderToDelete)
+        return res.status(404).send({ error: "Reminder not found" });
+
+    user.reminders = user.reminders.filter(reminder => reminder.reminderID != req.body["id"]);
     await user.save();
+
+    await Reminder.deleteOne({ reminderID: req.body["id"], userID: user.userID });
 
     res.json({ message: "Recordatorio eliminado" });
 });

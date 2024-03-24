@@ -9,7 +9,7 @@ function setLocals(app) {
     app.locals["en"] = {
         reminder: "You have {0} pending tasks for today.",
         add: "Task \"{0}\" added to the date {1}",
-        list: "**Pending tasks:**\n{0}\n**Completed tasks:**\n{1}",
+        list: "Here are your tasks:\n{0}",
         list_status: "{0} tasks found with status **{1}**: \n {2}",
         no_tasks: "No tasks to show.",
         help: "Available commands:\n{0}",
@@ -36,7 +36,7 @@ function setLocals(app) {
     app.locals["es"] = {
         reminder: "Tienes {0} tareas pendientes para hoy.",
         add: "Tarea \"{0}\" agregada la la fecha {1}",
-        list: "**Tareas pendientes:**\n{0}\n**Tareas realizadas:**\n{1}",
+        list: "Aquí están tus tareas:\n{0}",
         list_status: "{0} tareas encontradas con estado **{1}**: \n {2}",
         no_tasks: "No hay tareas para mostrar.",
         help: "Comandos disponibles:\n{0}",

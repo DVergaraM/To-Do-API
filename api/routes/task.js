@@ -105,7 +105,7 @@ router.patch("/:id", async (req, res) => {
             id: req.params.id,
             userID: req.body["userID"],
         });
-
+        console.log(await Task.findOne({ id: req.params.id, userID: req.body["userID"] }));
         if (!task) {
             return res.status(404).send({ error: "Task not found" });
         }
@@ -192,5 +192,36 @@ router.delete("/", async (req, res) => {
         res.status(400).send(err);
     }
 });
+
+router.delete("/", async(req, res) => {
+    if (!req.body["id"])
+        return res.status(400).send({ error: "Missing field: id" });
+
+    try {
+        const tasks = await Task.find({ id: req.body["id"] });
+        if (!tasks || tasks.length === 0)
+            return res.status(404).send({ error: "Task not found" });
+
+        // Delete all the tasks that belong to the user who is making this request
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            const user = await User.findOne({ userID: task.userID });
+            if (!user) {
+                return res.status(404).send({ error: "User not found" });
+            }
+            user.tasks.pull(task._id);
+            await user.save();
+        }
+
+        await Task.remove({ id: req.body["id"] });
+
+        res.send({
+            code: 200,
+            message: `Deleted ${tasks.length} tasks with id: ${req.body["id"]}`,
+        });
+    } catch (e) {
+        res.status(400).send(e);
+    }
+})
 
 module.exports = router;
