@@ -1,7 +1,8 @@
+.gitignore
 /node_modules
 /.history
 /.vscode
 package-lock.json
 .env
 a.*
-.gitignore
+.*.js
