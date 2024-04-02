@@ -27,11 +27,15 @@ function setLocals(app) {
         configError: "Error getting server configuration.",
         saveError: "An error occurred while saving the configuration.",
         saved: "Configuration successfully saved.",
+        configReset: "Configuration has been reset to default values.",
         reminderList: "Your reminders:\n{0}",
         removeReminder: "Reminder removed.",
         addReminder: "Reminder added.",
         noReminders: "No reminders to show.",
         reminderCommands: "Available reminder commands:\n- add: Add a new reminder.\n- remove: Remove a reminder.\n- list: List all reminders.",
+        channelNotFound: "Channel ID: \"{0}\" not found. Please check the ID and try again.",
+        userNotFound: "User ID: \"{0}\" not found. Please check the ID and try again.",
+        guildNotFound: "Guild ID: \"{0}\" not found. Please check the ID and try again.",
     }
     app.locals["es"] = {
         reminder: "Tienes {0} tareas pendientes para hoy.",
@@ -54,11 +58,15 @@ function setLocals(app) {
         configError: "Error al obtener la configuración del servidor.",
         saveError: "Ocurrió un error al guardar la configuración.",
         saved: "Configuración guardada exitosamente.",
+        configReset: "La configuración ha sido restablecida a los valores predeterminados.",
         reminderList: "Tus recordatorios:\n{0}",
         removeReminder: "Recordatorio eliminado.",
         addReminder: "Recordatorio agregado.",
         noReminders: "No hay recordatorios para mostrar.",
         reminderCommands: "Comandos de recordatorio disponibles:\n- add: Agregar un nuevo recordatorio.\n- remove: Eliminar un recordatorio.\n- list: Listar todos los recordatorios.",
+        channelNotFound: "ID de canal: \"{0}\" no encontrado. Por favor, verifica el ID e intenta nuevamente.",
+        userNotFound: "ID de usuario: \"{0}\" no encontrado. Por favor, verifica el ID e intenta nuevamente.",
+        guildNotFound: "ID de servidor: \"{0}\" no encontrado. Por favor, verifica el ID e intenta nuevamente.",
     }
 }
 
