@@ -1,33 +1,33 @@
 const express = require("express");
+const HttpStatus = require("http-status-codes");
 
 const router = express.Router();
-
 const Config = require("../models/config");
 
 router.use(express.json());
 
-/**
- * / GET the config saved for the guild with id 'guildId'
- * /guilds GET all guilds with saved config
- * / POST Create a new Config for a specific guild
- * / PATCH Update the config for a specific guild
- * / DELETE Delete the config for a specific guild
- */
+router.get("/", async (req, res, next) => {
+  const { guildID } = req.query;
 
-router.get("/", async (req, res) => {
-  if (!req.query["guildID"])
-    return res.status(400).send({ error: "Missing required fields" });
+  if (!guildID) {
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
+  }
 
-  const data = await Config.findOne({ guildID: req.query["guildID"] });
+  try {
+    const data = await Config.findOne({ guildID });
 
-  if (!data) return res.status(404).send({ error: "Guild not found" });
-  let newData = {
-    guildID: data.guildID,
-    channelID: data.channelID,
-    userID: data.userID,
-    language: data.language,
-  };
-  res.send(newData);
+    if (!data) {
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: "Guild not found" });
+    }
+
+    res.send(data);
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get("/guilds", async (_req, res) => {
@@ -36,14 +36,18 @@ router.get("/guilds", async (_req, res) => {
     const guildIDs = data.map((config) => config.guildID);
     res.send(guildIDs);
   } catch (err) {
-    res.status(500).send({ error: "Internal server error." });
+    res
+      .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: "Internal server error." });
     console.log(err);
   }
 });
 
 router.post("/", async (req, res) => {
   if (!req.body["guildID"] || !req.body["language"])
-    return res.status(400).send({ error: "Missing required fields" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
 
   const data = new Config({
     guildID: req.body["guildID"],
@@ -53,18 +57,20 @@ router.post("/", async (req, res) => {
   try {
     await data.save();
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.CREATED,
       message: "Config Saved for guildID: " + req.body["guildID"],
     });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
 // This has to be executed on /config execution on the bot
 router.patch("/", async (req, res) => {
   if (!req.query["guildID"])
-    return res.status(400).send({ error: "Missing field: guildID" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: guildID" });
 
   try {
     let data;
@@ -100,37 +106,46 @@ router.patch("/", async (req, res) => {
     );
     if (data.nModified == 0) {
       return res
-        .status(404)
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
         .send({ error: "There's no config values to update." });
     }
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       message: "Config updated for guildID: " + req.query["guildID"],
     });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
 // This is for the guildRemove event
 router.delete("/", async (req, res) => {
   if (!req.query["guildID"])
-    return res.status(400).send({ error: "Missing field: guildID" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: guildID" });
 
   try {
     const data = await Config.deleteOne({ guildID: req.query["guildID"] });
     if (data.deletedCount == 0) {
       return res
-        .status(404)
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
         .send({ error: "There's no config values to delete." });
     }
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       message: "Config deleted for guildID: " + req.query["guildID"],
     });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
+});
+
+router.use((err, _req, res, _next) => {
+  console.error(err);
+  res
+    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({ error: err.message });
 });
 
 module.exports = router;

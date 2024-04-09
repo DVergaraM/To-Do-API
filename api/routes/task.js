@@ -1,122 +1,115 @@
 const express = require("express");
+const HttpStatus = require("http-status-codes");
 
 const router = express.Router();
-
 const Task = require("../models/task");
 const User = require("../models/user");
 
 router.use(express.json());
-/*
- * /user GET User Tasks by it's ID
- * /guild GET Guild Tasks by it's ID
- * /count GET Count of pending tasks
- * /:id PATCH Update Task status by it's ID
- * / POST Create a new Task
- * / DELETE Delete a Task by it's ID
+
+/**
+ * Retrieves tasks based on the provided ID and type.
+ * @param {string} id - The ID to search for.
+ * @param {string} type - The type of task to search for.
+ * @returns {Array} - An array of tasks matching the ID and type.
+ * @throws {Error} - If no tasks are found.
  */
+async function getTasks(id, type) {
+  const tasks = await Task.find({ [`${type}ID`]: id });
 
-router.get("/user", async (req, res) => {
-  if (!req.query["id"])
-    return res.status(400).send({ error: "Missing required fields" });
+  if (!tasks || tasks.length === 0) {
+    throw new Error(`${type} not found`);
+  }
 
-  const data = await Task.find({
-    userID: req.query["id"],
-  });
+  return tasks.map((task) => ({
+    id: task.id,
+    task: task.task,
+    date: task.date,
+    guildID: task.guildID,
+    userID: task.userID,
+    status: task.status,
+  }));
+}
 
-  if (!data)
-    return res.status(404).send({
-      error: "User not found",
-    });
+router.get("/user", async (req, res, next) => {
+  const { id } = req.query;
 
-  let newData = [];
-
-  data.forEach((task) => {
-    newData.push({
-      id: task.id,
-      task: task.task,
-      date: task.date,
-      guildID: task.guildID,
-      userID: task.userID,
-      status: task.status,
-    });
-  });
-
-  if (newData.length === 0)
+  if (!id) {
     return res
-      .status(404)
-      .send({ error: `No tasks found for ${req.query["id"]}` });
-
-  res.send({ data: newData });
-});
-
-router.get("/guild", async (req, res) => {
-  if (!req.query["id"])
-    return res.status(400).send({ error: "Falta el campo requerido id" });
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
+  }
 
   try {
-    const data = await Task.find({
-      guildID: req.query["id"],
-    });
-
-    if (!data || data.length === 0)
-      return res.status(404).send({
-        error: `No se encontraron tareas para el guildID ${req.query["id"]}`,
-      });
-
-    let newData = [];
-
-    data.forEach((task) => {
-      newData.push({
-        id: task.id,
-        task: task.task,
-        date: task.date,
-        guildID: task.guildID,
-        userID: task.userID,
-        status: task.status,
-      });
-    });
-
-    res.send({ data: newData });
+    const data = await getTasks(id, "user");
+    res.send({ data });
   } catch (err) {
-    res.status(500).send({ error: "Internal server error." });
+    next(err);
   }
 });
 
-router.get("/count", async (req, res) => {
+router.get("/guild", async (req, res, next) => {
+  const { id } = req.query;
+
+  if (!id) {
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
+  }
+
+  try {
+    const data = await getTasks(id, "guild");
+    res.send({ data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/count", async (_req, res) => {
   try {
     const count = await Task.countDocuments({ status: false });
 
     res.send({ count: count });
   } catch (err) {
-    res.status(500).send({ error: "Internal server error." });
+    res
+      .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: "Internal server error." });
   }
 });
 
 router.patch("/:id", async (req, res) => {
   if (!req.params.id)
-    return res.status(400).send({ error: "Missing field: id" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: id" });
   if (!req.body["status"])
-    return res.status(400).send({ error: "Missing field: status" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: status" });
   if (!(req.params.id && req.body["status"]))
-    return res.status(400).send({ error: "Missing field: id, status" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: id, status" });
   try {
     const task = await Task.findOne({
       id: req.params.id,
       userID: req.body["userID"],
     });
     if (!task) {
-      return res.status(404).send({ error: "Task not found" });
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: "Task not found" });
     }
 
     task.status = req.body["status"];
     await task.save();
 
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       message: "Task Updated for id: " + req.params.id,
     });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
@@ -127,7 +120,9 @@ router.post("/", async (req, res) => {
     !req.body["guildID"] ||
     !req.body["userID"]
   )
-    return res.status(400).send({ error: "Missing required fields" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
 
   const task = new Task({
     task: req.body["task"],
@@ -143,7 +138,7 @@ router.post("/", async (req, res) => {
     try {
       await userInTable.save();
     } catch (err) {
-      return res.status(500).send(err);
+      return res.status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR).send(err);
     }
   }
 
@@ -153,13 +148,15 @@ router.post("/", async (req, res) => {
     await userInTable.save();
     res.send({ task: savedTask });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
 router.delete("/", async (req, res) => {
   if (!req.body["id"] || !req.body["userID"])
-    return res.status(400).send({ error: "Missing field: id, userID" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: id, userID" });
 
   try {
     let user = await User.findOne({ userID: req.body["userID"] });
@@ -171,7 +168,9 @@ router.delete("/", async (req, res) => {
     });
 
     if (!task) {
-      return res.status(404).send({ error: "Task not found" });
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: "Task not found" });
     }
 
     await Task.deleteOne({ _id: task._id });
@@ -180,30 +179,32 @@ router.delete("/", async (req, res) => {
     await user.save();
 
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       message: "Task Deleted for id: " + req.body["id"],
     });
   } catch (err) {
     console.log(err);
-    res.status(400).send(err);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
 router.delete("/", async (req, res) => {
   if (!req.body["id"])
-    return res.status(400).send({ error: "Missing field: id" });
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing field: id" });
 
   try {
     const tasks = await Task.find({ id: req.body["id"] });
     if (!tasks || tasks.length === 0)
       return res.status(404).send({ error: "Task not found" });
 
-    // Delete all the tasks that belong to the user who is making this request
-    for (let i = 0; i < tasks.length; i++) {
-      const task = tasks[i];
+    for (let task of tasks) {
       const user = await User.findOne({ userID: task.userID });
       if (!user) {
-        return res.status(404).send({ error: "User not found" });
+        return res
+          .status(HttpStatus.StatusCodes.NOT_FOUND)
+          .send({ error: "User not found" });
       }
       user.tasks.pull(task._id);
       await user.save();
@@ -212,12 +213,19 @@ router.delete("/", async (req, res) => {
     await Task.remove({ id: req.body["id"] });
 
     res.send({
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       message: `Deleted ${tasks.length} tasks with id: ${req.body["id"]}`,
     });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(e);
   }
+});
+
+router.use((err, _req, res, _next) => {
+  console.error(err);
+  res
+    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({ error: err.message });
 });
 
 module.exports = router;

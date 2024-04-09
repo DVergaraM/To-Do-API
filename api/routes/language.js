@@ -1,19 +1,17 @@
 const express = require("express");
+const HttpStatus = require("http-status-codes");
 
 const router = express.Router();
-
 const Config = require("../models/config");
 
 router.use(express.json());
 
-/*
- * / GET Language by the Guild ID
- */
-
 router.get("/", async (req, res, next) => {
-  if (!req.query["guildID"]) {
+  const { guildID } = req.query;
+
+  if (!guildID) {
     let newData = {
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       language: req.app.locals["en"],
     };
     res.send(newData);
@@ -21,20 +19,31 @@ router.get("/", async (req, res, next) => {
   }
 
   try {
-    const data = await Config.findOne({ guildID: req.query["guildID"] });
+    const data = await Config.findOne({ guildID });
 
-    if (!data) return res.status(404).send({ error: "Guild not found." });
+    if (!data) {
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: "Guild not found." });
+    }
 
     let dataToSend = req.app.locals[data.language];
     let newData = {
-      code: 200,
+      code: HttpStatus.StatusCodes.OK,
       guildID: data.guildID,
       language: dataToSend,
     };
     res.send(newData);
   } catch (err) {
-    res.status(500).send({ error: "Internal server error." });
+    next(err);
   }
+});
+
+router.use((err, _req, res, _next) => {
+  console.error(err);
+  res
+    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({ error: err.message });
 });
 
 module.exports = router;

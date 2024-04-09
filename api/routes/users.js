@@ -1,68 +1,86 @@
 const express = require("express");
-const router = express.Router();
+const HttpStatus = require("http-status-codes");
 
+const router = express.Router();
 const Task = require("../models/task");
 const User = require("../models/user");
 const Reminder = require("../models/reminder");
 
 router.use(express.json());
-/**
- * /: GET
- * /:id GET User by it's ID
- * /:id/reminders GET Reminders by User ID
- * /:id/tasks GET Tasks by User ID
- */
-
-
-router.get("/", async (req, res) => {
-    try {
-        const users = await User.find();
-        res.json(users);
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: err.message });
-    }
-});
-
-router.get("/:id", getUser, (req, res) => {
-    res.json(res.user);
-});
 
 /**
- * Retrieves a user by ID.
- * @param {import("express").Request} req - The request object.
- * @param {import("express").Response} res - The response object.
- * @param {import("express").NextFunction} next - The next middleware function.
- * @returns {Promise<void>} - A promise that resolves when the user is retrieved.
+ * Retrieves items for a specific user.
+ *
+ * @param {string} id - The ID of the user.
+ * @param {Object} model - The model used to query the database.
+ * @returns {Promise<Array>} - A promise that resolves to an array of items.
+ * @throws {Error} - If items are not found.
  */
-async function getUser(req, res, next) {
-    let user;
-    try {
-        user = await User.findOne({ userID: req.params.id });
-        if (!user) return res.sendStatus(404);
-        req.user = user;
-        next();
-    } catch (err) {
-        return res.sendStatus(500);
-    }
+async function getUserItems(id, model) {
+  const items = await model.find({ userID: id });
+
+  if (!items || items.length === 0) {
+    throw new Error("Items not found");
+  }
+
+  return items;
 }
 
-router.get("/:id/reminders/", getUser, async (req, res) => {
-    try {
-        const reminders = await Reminder.find({ userID: req.params.id });
-        res.json(reminders);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+/**
+ * Retrieves a user by their ID.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the user is retrieved successfully.
+ */
+async function getUser(req, res, next) {
+  let user;
+  try {
+    user = await User.findOne({ userID: req.params.id });
+    if (!user) return res.sendStatus(HttpStatus.StatusCodes.NOT_FOUND);
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.sendStatus(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+router.get("/", async (_req, res, next) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.get("/:id/tasks/", getUser, async (req, res) => {
-    try {
-        const tasks = await Task.find({ userID: req.params.id });
-        res.json(tasks);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+router.get("/:id", getUser, (_req, res) => {
+  res.json(res.user);
+});
+
+router.get("/:id/reminders/", getUser, async (req, res, next) => {
+  try {
+    const reminders = await getUserItems(req.params.id, Reminder);
+    res.json(reminders);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/:id/tasks/", getUser, async (req, res, next) => {
+  try {
+    const tasks = await getUserItems(req.params.id, Task);
+    res.json(tasks);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.use((err, _req, res, _next) => {
+  console.error(err);
+  res
+    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({ error: err.message });
 });
 
 module.exports = router;

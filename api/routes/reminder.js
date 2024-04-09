@@ -1,119 +1,131 @@
 const express = require("express");
+const HttpStatus = require("http-status-codes");
+
 const router = express.Router();
-const Task = require("../models/task");
 const User = require("../models/user");
 const Reminder = require("../models/reminder");
+
 router.use(express.json());
 
-/**
- * / GET Reminders by the User ID
- * / POST Create a new Reminder for a specific user
- * / DELETE Delete a Reminder by it's ID
- */
-
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
-    if (!req.query["userID"]) {
+    const { userID } = req.query;
+
+    if (!userID) {
       const reminders = await Reminder.find();
       return res.json(reminders);
     }
 
-    const user = await User.findOne({
-      userID: req.query["userID"],
-    });
+    const user = await User.findOne({ userID });
 
-    if (!user) return res.status(404).send({ error: "User not found" });
+    if (!user) {
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: "User not found" });
+    }
 
-    const data = await Reminder.find({
-      userID: user.userID,
-    });
+    const data = await Reminder.find({ userID: user.userID });
 
-    if (!data)
-      return res.status(404).send({
-        error: "Reminder not found for userID: " + req.query["userID"],
-      });
+    if (!data) {
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: `Reminder not found for userID: ${userID}` });
+    }
 
-    let newData = [];
+    let newData = data.map((reminder) => ({
+      reminderID: reminder.reminderID,
+      hour: reminder.hour,
+      minute: reminder.minute,
+      timesPerDay: reminder.timesPerDay,
+    }));
 
-    data.forEach((reminder) => {
-      newData.push({
-        reminderID: reminder.reminderID,
-        hour: reminder.hour,
-        minute: reminder.minute,
-        timesPerDay: reminder.timesPerDay,
-      });
-    });
-
-    if (newData.length === 0)
-      return res.status(404).send({
-        code: 404,
-        error: `No reminders found for ${req.query["userID"]}`,
-      });
+    if (newData.length === 0) {
+      return res
+        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .send({ error: `No reminders found for ${userID}` });
+    }
 
     res.send({ data: newData });
   } catch (err) {
-    console.log(err);
-    return res.status(500).send({ error: "Internal Server Error" });
+    next(err);
   }
 });
 
-router.post("/", async (req, res) => {
-  if (!req.body["userID"] || !req.body["hour"] || !req.body["minute"])
-    return res.status(400).send({ error: "Missing required fields" });
+router.post("/", async (req, res, next) => {
+  const { userID, hour, minute } = req.body;
 
-  const user = await User.findOne({ userID: req.body["userID"] });
+  if (!userID || !hour || !minute) {
+    return res
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .send({ error: "Missing required fields" });
+  }
+
+  const user = await User.findOne({ userID });
 
   if (!user) {
-    return res.status(443).send({ error: "User not found" });
+    return res
+      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .send({ error: "User not found" });
   }
+
   const data = new Reminder({
     userID: user.userID,
-    hour: req.body["hour"],
-    minute: req.body["minute"],
+    hour,
+    minute,
   });
 
   try {
     await data.save();
     user.reminders.push(data._id);
-    res.send({
-      code: 200,
-      message: "Reminder Saved for userID: " + req.body["userID"],
-    });
     await user.save();
+
+    res.send({
+      code: HttpStatus.StatusCodes.OK,
+      message: `Reminder Saved for userID: ${userID}`,
+    });
   } catch (err) {
-    console.log(err);
-    res.status(400).send(err);
+    next(err);
   }
 });
 
-router.delete("/", async (req, res) => {
-  if (!req.body["id"] || !req.body["userID"])
+router.delete("/", async (req, res, _next) => {
+  const { id, userID } = req.body;
+
+  if (!id || !userID) {
     return res
-      .status(400)
+      .status(HttpStatus.StatusCodes.BAD_REQUEST)
       .send({ error: "Missing required fields id, userID" });
+  }
 
-  let user = await User.findOne({ userID: req.body["userID"] });
-  if (!user) return res.status(404).send({ error: "User not found" });
+  let user = await User.findOne({ userID });
+  if (!user) {
+    return res
+      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .send({ error: "User not found" });
+  }
 
-  let reminderFound = await Reminder.findOne({ reminderID: req.body["id"] });
-  if (!reminderFound)
-    return res.status(404).send({ error: "Reminder not found" });
-
-  let reminderToDelete = user.reminders.find(
-    (reminder) => reminder._id.toString() == reminderFound._id.toString()
-  );
-  console.log(reminderToDelete, user.reminders, reminderFound._id);
-  if (!reminderToDelete)
-    return res.status(404).send({ error: "Reminder not found" });
+  let reminderFound = await Reminder.findOne({ reminderID: id });
+  if (!reminderFound) {
+    return res
+      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .send({ error: "Reminder not found" });
+  }
 
   user.reminders = user.reminders.filter(
-    (reminder) => reminder.reminderID != req.body["id"]
+    (reminder) => reminder.reminderID != id
   );
   await user.save();
 
-  await Reminder.deleteOne({ reminderID: req.body["id"], userID: user.userID });
+  await Reminder.deleteOne({ reminderID: id, userID: user.userID });
 
-  res.json({ message: "Recordatorio eliminado" });
+  res.json({ message: "Task deleted" });
+});
+
+router.use((err, _req, res, _next) => {
+  console.error(err);
+  res
+    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({ error: err.message });
 });
 
 module.exports = router;
