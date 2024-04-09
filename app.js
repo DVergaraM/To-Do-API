@@ -1,54 +1,42 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 const mongoose = require("mongoose");
+const HttpStatus = require("http-status-codes");
 const languageRoutes = require("./api/routes/language");
 const configRoutes = require("./api/routes/config");
-const taskRoutes = require('./api/routes/task');
-const reminderRoutes = require('./api/routes/reminder');
-const userRoutes = require('./api/routes/users');
-const setLocals = require("./methods");
+const taskRoutes = require("./api/routes/task");
+const reminderRoutes = require("./api/routes/reminder");
+const userRoutes = require("./api/routes/users");
+const { setLocals } = require("./methods");
 require("dotenv").config();
 
 mongoose.connect(process.env.mongoURI);
 setLocals(app);
 
 app.use(morgan("dev"));
-
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Header",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    if (req.method === "OPTIONS") {
-        res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
-        return res.status(200).json({});
-    }
-    next();
-});
+app.use(cors());
 
 app.use("/language", languageRoutes);
 app.use("/config", configRoutes);
-app.use('/tasks', taskRoutes);
-app.use('/reminders', reminderRoutes);
-app.use('/users', userRoutes);
+app.use("/tasks", taskRoutes);
+app.use("/reminders", reminderRoutes);
+app.use("/users", userRoutes);
 
-// Error handling middleware should be placed after the routes
 app.use((_req, _res, next) => {
-    const error = new Error("Not found");
-    error.status = 404;
-    next(error);
+  const error = new Error("Not found");
+  error.status = HttpStatus.StatusCodes.NOT_FOUND;
+  next(error);
 });
 
 app.use((err, _req, res, _next) => {
-    res.status(err.status || 500);
-    res.json({
-        error: {
-            message: err.message,
-        },
-    });
-    
-})
+  res.status(err.status || HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR);
+  res.json({
+    error: {
+      message: err.message,
+    },
+  });
+});
 
 module.exports = app;
