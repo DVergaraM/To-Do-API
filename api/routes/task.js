@@ -77,7 +77,7 @@ router.get("/count", async (_req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   if (!req.params.id)
     return res
       .status(HttpStatus.StatusCodes.BAD_REQUEST)

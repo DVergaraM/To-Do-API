@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
 });
 
 // This has to be executed on /config execution on the bot
-router.patch("/", async (req, res) => {
+router.put("/", async (req, res) => {
   if (!req.query["guildID"])
     return res
       .status(HttpStatus.StatusCodes.BAD_REQUEST)
