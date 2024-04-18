@@ -24,7 +24,7 @@ function setLocals(app) {
     pending: "Pending",
     done: "Done",
     getConfig:
-      "Server configuration: \n- Channel: {0}.\n- User: {1}.\n- Language: {2}.",
+      "Server configuration: \n- Channel: <#{0}>.\n- User: {1}.\n- Language: {2}.",
     configError: "Error getting server configuration.",
     saveError: "An error occurred while saving the configuration.",
     saved: "Configuration successfully saved.",
@@ -60,7 +60,7 @@ function setLocals(app) {
     pending: "Pendiente",
     done: "Realizado",
     getConfig:
-      "Configuración del servidor: \n- Canal: {0}.\n- Usuario: {1}.\n- Idioma: {2}.",
+      "Configuración del servidor: \n- Canal: <#{0}>.\n- Usuario: {1}.\n- Idioma: {2}.",
     configError: "Error al obtener la configuración del servidor.",
     saveError: "Ocurrió un error al guardar la configuración.",
     saved: "Configuración guardada exitosamente.",
