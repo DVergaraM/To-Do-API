@@ -60,7 +60,7 @@ function setLocals(app) {
     pending: "Pendiente",
     done: "Realizado",
     getConfig:
-      "Configuración del servidor: \n- Canal: <#{0}>.\n- Usuario: {1}.\n- Idioma: {2}.",
+      "Configuración del servidor:\n- Canal: <#{0}>.\n- Usuario: {1}.\n- Idioma: {2}.",
     configError: "Error al obtener la configuración del servidor.",
     saveError: "Ocurrió un error al guardar la configuración.",
     saved: "Configuración guardada exitosamente.",
