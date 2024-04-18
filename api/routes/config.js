@@ -1,5 +1,5 @@
 const express = require("express");
-const HttpStatus = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 
 const router = express.Router();
 const Config = require("../models/config");
@@ -12,7 +12,7 @@ router.get("/", async (req, res, next) => {
 
   if (!guildID) {
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing required fields" });
   }
 
@@ -21,7 +21,7 @@ router.get("/", async (req, res, next) => {
 
     if (!data) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: "Guild not found" });
     }
 
@@ -39,7 +39,7 @@ router.get("/guilds", async (_req, res) => {
     res.send(guildIDs);
   } catch (err) {
     res
-      .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .send({ error: "Internal server error." });
     console.log(err);
   }
@@ -55,7 +55,7 @@ body : {
 router.post("/", async (req, res) => {
   if (!req.body["guildID"] || !req.body["language"])
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing required fields" });
 
   const data = new Config({
@@ -66,11 +66,11 @@ router.post("/", async (req, res) => {
   try {
     await data.save();
     res.send({
-      code: HttpStatus.StatusCodes.CREATED,
+      code: StatusCodes.CREATED,
       message: "Config Saved for guildID: " + req.body["guildID"],
     });
   } catch (err) {
-    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
+    res.status(StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
@@ -79,7 +79,7 @@ router.post("/", async (req, res) => {
 router.put("/", async (req, res) => {
   if (!req.query["guildID"])
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing field: guildID" });
 
   try {
@@ -116,15 +116,15 @@ router.put("/", async (req, res) => {
     );
     if (data.nModified == 0) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: "There's no config values to update." });
     }
     res.send({
-      code: HttpStatus.StatusCodes.OK,
+      code: StatusCodes.OK,
       message: "Config updated for guildID: " + req.query["guildID"],
     });
   } catch (err) {
-    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
+    res.status(StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
@@ -133,29 +133,29 @@ router.put("/", async (req, res) => {
 router.delete("/", async (req, res) => {
   if (!req.query["guildID"])
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing field: guildID" });
 
   try {
     const data = await Config.deleteOne({ guildID: req.query["guildID"] });
     if (data.deletedCount == 0) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: "There's no config values to delete." });
     }
     res.send({
-      code: HttpStatus.StatusCodes.OK,
+      code: StatusCodes.OK,
       message: "Config deleted for guildID: " + req.query["guildID"],
     });
   } catch (err) {
-    res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
+    res.status(StatusCodes.BAD_REQUEST).send(err);
   }
 });
 
 router.use((err, _req, res, _next) => {
   console.error(err);
   res
-    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
     .send({ error: err.message });
 });
 

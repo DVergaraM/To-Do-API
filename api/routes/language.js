@@ -1,5 +1,5 @@
 const express = require("express");
-const HttpStatus = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 
 const router = express.Router();
 const Config = require("../models/config");
@@ -12,7 +12,7 @@ router.get("/", async (req, res, next) => {
 
   if (!guildID) {
     let newData = {
-      code: HttpStatus.StatusCodes.OK,
+      code: StatusCodes.OK,
       language: req.app.locals["en"],
     };
     res.send(newData);
@@ -24,13 +24,13 @@ router.get("/", async (req, res, next) => {
 
     if (!data) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: "Guild not found." });
     }
 
     let dataToSend = req.app.locals[data.language];
     let newData = {
-      code: HttpStatus.StatusCodes.OK,
+      code: StatusCodes.OK,
       guildID: data.guildID,
       language: dataToSend,
     };
@@ -43,7 +43,7 @@ router.get("/", async (req, res, next) => {
 router.use((err, _req, res, _next) => {
   console.error(err);
   res
-    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
     .send({ error: err.message });
 });
 

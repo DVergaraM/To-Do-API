@@ -3,7 +3,7 @@ const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const HttpStatus = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 const languageRoutes = require("./api/routes/language");
 const configRoutes = require("./api/routes/config");
 const taskRoutes = require("./api/routes/task");
@@ -26,12 +26,12 @@ app.use("/users", userRoutes);
 
 app.use((_req, _res, next) => {
   const error = new Error("Not found");
-  error.status = HttpStatus.StatusCodes.NOT_FOUND;
+  error.status = StatusCodes.NOT_FOUND;
   next(error);
 });
 
 app.use((err, _req, res, _next) => {
-  res.status(err.status || HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR);
+  res.status(err.status || StatusCodes.INTERNAL_SERVER_ERROR);
   res.json({
     error: {
       message: err.message,

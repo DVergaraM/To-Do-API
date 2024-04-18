@@ -1,5 +1,5 @@
 const express = require("express");
-const HttpStatus = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 
 const router = express.Router();
 const Task = require("../models/task");
@@ -37,11 +37,11 @@ async function getUser(req, res, next) {
   let user;
   try {
     user = await User.findOne({ userID: req.params.id });
-    if (!user) return res.sendStatus(HttpStatus.StatusCodes.NOT_FOUND);
+    if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
     req.user = user;
     next();
   } catch (err) {
-    return res.sendStatus(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -83,7 +83,7 @@ router.get("/:id/tasks/", getUser, async (req, res, next) => {
 router.use((err, _req, res, _next) => {
   console.error(err);
   res
-    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
     .send({ error: err.message });
 });
 

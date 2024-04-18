@@ -1,5 +1,5 @@
 const express = require("express");
-const HttpStatus = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 
 const router = express.Router();
 const User = require("../models/user");
@@ -21,7 +21,7 @@ router.get("/", async (req, res, next) => {
 
     if (!user) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: "User not found" });
     }
 
@@ -29,7 +29,7 @@ router.get("/", async (req, res, next) => {
 
     if (!data) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: `Reminder not found for userID: ${userID}` });
     }
 
@@ -42,7 +42,7 @@ router.get("/", async (req, res, next) => {
 
     if (newData.length === 0) {
       return res
-        .status(HttpStatus.StatusCodes.NOT_FOUND)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: `No reminders found for ${userID}` });
     }
 
@@ -64,7 +64,7 @@ router.post("/", async (req, res, next) => {
 
   if (!userID || !hour || !minute) {
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing required fields" });
   }
 
@@ -72,7 +72,7 @@ router.post("/", async (req, res, next) => {
 
   if (!user) {
     return res
-      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .status(StatusCodes.NOT_FOUND)
       .send({ error: "User not found" });
   }
 
@@ -88,7 +88,7 @@ router.post("/", async (req, res, next) => {
     await user.save();
 
     res.send({
-      code: HttpStatus.StatusCodes.OK,
+      code: StatusCodes.OK,
       message: `Reminder Saved for userID: ${userID}`,
     });
   } catch (err) {
@@ -108,21 +108,21 @@ router.delete("/", async (req, res, _next) => {
 
   if (!id || !userID) {
     return res
-      .status(HttpStatus.StatusCodes.BAD_REQUEST)
+      .status(StatusCodes.BAD_REQUEST)
       .send({ error: "Missing required fields id, userID" });
   }
 
   let user = await User.findOne({ userID });
   if (!user) {
     return res
-      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .status(StatusCodes.NOT_FOUND)
       .send({ error: "User not found" });
   }
 
   let reminderFound = await Reminder.findOne({ reminderID: id });
   if (!reminderFound) {
     return res
-      .status(HttpStatus.StatusCodes.NOT_FOUND)
+      .status(StatusCodes.NOT_FOUND)
       .send({ error: "Reminder not found" });
   }
 
@@ -139,7 +139,7 @@ router.delete("/", async (req, res, _next) => {
 router.use((err, _req, res, _next) => {
   console.error(err);
   res
-    .status(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR)
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
     .send({ error: err.message });
 });
 
