@@ -6,6 +6,7 @@ const Config = require("../models/config");
 
 router.use(express.json());
 
+// localhost:3000/config?guildID=123
 router.get("/", async (req, res, next) => {
   const { guildID } = req.query;
 
@@ -30,6 +31,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// localhost:3000/config/guilds
 router.get("/guilds", async (_req, res) => {
   try {
     const data = await Config.find({}, "guildID");
@@ -43,6 +45,13 @@ router.get("/guilds", async (_req, res) => {
   }
 });
 
+// localhost:3000/config
+/*
+body : {
+  "guildID": "123",
+  "language": "en"
+}
+*/
 router.post("/", async (req, res) => {
   if (!req.body["guildID"] || !req.body["language"])
     return res
@@ -66,6 +75,7 @@ router.post("/", async (req, res) => {
 });
 
 // This has to be executed on /config execution on the bot
+// localhost:3000/config?guildID=123
 router.put("/", async (req, res) => {
   if (!req.query["guildID"])
     return res
@@ -75,15 +85,15 @@ router.put("/", async (req, res) => {
   try {
     let data;
     let updateObject = {};
-
+    // &channelID=123
     if (req.query["channelID"]) {
       updateObject.channelID = req.query["channelID"];
     }
-
+    // &userID=123
     if (req.query["userID"]) {
       updateObject.userID = req.query["userID"];
     }
-
+    // &language=en
     if (req.query["language"]) {
       updateObject.language = req.query["language"];
     }
@@ -119,6 +129,7 @@ router.put("/", async (req, res) => {
 });
 
 // This is for the guildRemove event
+// localhost:3000/config?guildID=123
 router.delete("/", async (req, res) => {
   if (!req.query["guildID"])
     return res

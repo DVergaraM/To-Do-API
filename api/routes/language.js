@@ -6,6 +6,7 @@ const Config = require("../models/config");
 
 router.use(express.json());
 
+// localhost:3000/language?guildID=123
 router.get("/", async (req, res, next) => {
   const { guildID } = req.query;
 

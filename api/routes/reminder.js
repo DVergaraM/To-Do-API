@@ -7,6 +7,7 @@ const Reminder = require("../models/reminder");
 
 router.use(express.json());
 
+// localhost:3000/reminders
 router.get("/", async (req, res, next) => {
   try {
     const { userID } = req.query;
@@ -50,7 +51,14 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
-
+// localhost:3000/reminders
+/*
+body : {
+  "userID": "123",
+  "hour": "12",
+  "minute": "30"
+}
+*/
 router.post("/", async (req, res, next) => {
   const { userID, hour, minute } = req.body;
 
@@ -88,6 +96,13 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// localhost:3000/reminders/
+/*
+body : {
+  "id": "123",
+  "userID": "123"
+}
+*/
 router.delete("/", async (req, res, _next) => {
   const { id, userID } = req.body;
 

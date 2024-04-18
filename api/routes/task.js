@@ -30,7 +30,7 @@ async function getTasks(id, type) {
     status: task.status,
   }));
 }
-
+// localhost:3000/tasks/user?id=123
 router.get("/user", async (req, res, next) => {
   const { id } = req.query;
 
@@ -48,6 +48,7 @@ router.get("/user", async (req, res, next) => {
   }
 });
 
+// localhost:3000/tasks/guild?id=123
 router.get("/guild", async (req, res, next) => {
   const { id } = req.query;
 
@@ -65,6 +66,7 @@ router.get("/guild", async (req, res, next) => {
   }
 });
 
+// localhost:3000/tasks/count
 router.get("/count", async (_req, res) => {
   try {
     const count = await Task.countDocuments({ status: false });
@@ -77,19 +79,23 @@ router.get("/count", async (_req, res) => {
   }
 });
 
+// localhost:3000/tasks/123
 router.put("/:id", async (req, res) => {
   if (!req.params.id)
     return res
       .status(HttpStatus.StatusCodes.BAD_REQUEST)
       .send({ error: "Missing field: id" });
+
   if (!req.body["status"])
     return res
       .status(HttpStatus.StatusCodes.BAD_REQUEST)
       .send({ error: "Missing field: status" });
+
   if (!(req.params.id && req.body["status"]))
     return res
       .status(HttpStatus.StatusCodes.BAD_REQUEST)
       .send({ error: "Missing field: id, status" });
+
   try {
     const task = await Task.findOne({
       id: req.params.id,
@@ -113,6 +119,15 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// localhost:3000/tasks/123
+/* 
+  body: { 
+    "task": "new task", 
+    "date": "new date",
+    "guildID": "new guildID",
+    "userID": "new userID",
+  }
+  */
 router.post("/", async (req, res) => {
   if (
     !req.body["task"] ||
@@ -151,7 +166,13 @@ router.post("/", async (req, res) => {
     res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(err);
   }
 });
-
+// localhost:3000/tasks
+/*
+  body: {
+    "id": "123",
+    "userID": "123"
+  }
+ */
 router.delete("/", async (req, res) => {
   if (!req.body["id"] || !req.body["userID"])
     return res
@@ -188,6 +209,12 @@ router.delete("/", async (req, res) => {
   }
 });
 
+// localhost:3000/tasks
+/*
+  body: {
+    "id": "123"
+  }
+ */
 router.delete("/", async (req, res) => {
   if (!req.body["id"])
     return res
