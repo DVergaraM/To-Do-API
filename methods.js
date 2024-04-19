@@ -41,6 +41,7 @@ function setLocals(app) {
       'User ID: "{0}" not found. Please check the ID and try again.',
     guildNotFound:
       'Guild ID: "{0}" not found. Please check the ID and try again.',
+    ownerError: "Only the server owner can perform this action.",
   };
   app.locals["es"] = {
     reminder: "Tienes {0} tareas pendientes para hoy.",
@@ -78,6 +79,7 @@ function setLocals(app) {
       'ID de usuario: "{0}" no encontrado. Por favor, verifica el ID e intenta nuevamente.',
     guildNotFound:
       'ID de servidor: "{0}" no encontrado. Por favor, verifica el ID e intenta nuevamente.',
+    ownerError: "Solo el dueño del servidor puede realizar esta acción.",
   };
 }
 
