@@ -55,7 +55,7 @@ router.get("/", async (req, res, next) => {
 // localhost:3000/reminders/count
 router.get("/count", async (_req, res) => {
   try {
-    const count = await Reminder.countDocuments();
+    const count = await Reminder.countDocuments({});
     res.send({ count: count });
   } catch (err) {
     res

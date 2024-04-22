@@ -63,8 +63,8 @@ router.get("/:id", getUser, (_req, res) => {
 // localhost:3000/users/count
 router.get("/count", async (_req, res, next) => {
   try {
-    const count = await User.countDocuments();
-    res.json({ count });
+    const count = await User.countDocuments({});
+    res.json({ count: count });
   } catch (err) {
     next(err);
   }

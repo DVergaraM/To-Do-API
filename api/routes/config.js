@@ -48,7 +48,7 @@ router.get("/guilds", async (_req, res) => {
 //localhost:3000/config/guilds/count
 router.get("/guilds/count", async (_req, res) => {
   try {
-    const count = await Config.countDocuments();
+    const count = await Config.countDocuments({});
     res.send({ count: count });
   } catch (err) {
     res
