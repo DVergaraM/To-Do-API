@@ -64,7 +64,7 @@ router.get("/:id", getUser, (_req, res) => {
 router.get("/count", async (_req, res, next) => {
   try {
     const count = await User.countDocuments({});
-    res.json({ count: count });
+    res.send({ count: count })
   } catch (err) {
     next(err);
   }
