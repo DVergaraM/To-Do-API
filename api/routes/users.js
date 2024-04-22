@@ -64,9 +64,12 @@ router.get("/:id", getUser, (_req, res) => {
 router.get("/count", async (_req, res, next) => {
   try {
     const count = await User.countDocuments({});
-    res.send({ count: count })
+    res.send({ count: count });
   } catch (err) {
-    next(err);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: "Internal server error." });
+    console.log(err);
   }
 });
 
@@ -92,9 +95,7 @@ router.get("/:id/tasks/", getUser, async (req, res, next) => {
 
 router.use((err, _req, res, _next) => {
   console.error(err);
-  res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send({ error: err.message });
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: err.message });
 });
 
 module.exports = router;
