@@ -60,6 +60,16 @@ router.get("/:id", getUser, (_req, res) => {
   res.json(res.user);
 });
 
+// localhost:3000/users/count
+router.get("/count", async (_req, res, next) => {
+  try {
+    const count = await User.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // localhost:3000/users/123/reminders
 router.get("/:id/reminders/", getUser, async (req, res, next) => {
   try {

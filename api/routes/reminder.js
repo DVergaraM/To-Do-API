@@ -51,6 +51,20 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
+
+// localhost:3000/reminders/count
+router.get("/count", async (_req, res) => {
+  try {
+    const count = await Reminder.countDocuments();
+    res.send({ count: count });
+  } catch (err) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: "Internal server error." });
+    console.log(err);
+  }
+});
+
 // localhost:3000/reminders
 /*
 body : {

@@ -45,6 +45,19 @@ router.get("/guilds", async (_req, res) => {
   }
 });
 
+//localhost:3000/config/guilds/count
+router.get("/guilds/count", async (_req, res) => {
+  try {
+    const count = await Config.countDocuments();
+    res.send({ count: count });
+  } catch (err) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: "Internal server error." });
+    console.log(err);
+  }
+});
+
 // localhost:3000/config
 /*
 body : {
