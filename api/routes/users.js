@@ -61,10 +61,11 @@ router.get("/:id", getUser, (_req, res) => {
 });
 
 // localhost:3000/users/count
-router.get("/count", async (_req, res, next) => {
+router.get("/count", async (_req, res, _next) => {
   try {
-    const count = await User.countDocuments({});
-    res.send({ count: count });
+    User.countDocuments({}, (_err, count) => {
+      console.log(count);
+    });
   } catch (err) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
