@@ -18,7 +18,7 @@ async function getTasks(id, type) {
   const tasks = await Task.find({ [`${type}ID`]: id });
 
   if (!tasks || tasks.length === 0) {
-    throw new Error(`${type} not found`);
+    throw new Error(`"${type}" not found`);
   }
 
   return tasks.map((task) => ({
@@ -255,4 +255,21 @@ router.use((err, _req, res, _next) => {
     .send({ error: err.message });
 });
 
+/**
+ * A module that provides routes for the task API.
+ * @module TaskRouter
+ * @name TaskRouter
+ * @type {express.Router}
+ * @requires express
+ * @requires http-status-codes
+ * @requires ../models/task
+ * @requires ../models/user
+ * @see Task
+ * @see User
+ * @see https://www.npmjs.com/package/http-status-codes
+ * @see http://expressjs.com/en/4x/api.html#router
+ * @see https://www.npmjs.com/package/express
+ * @see https://www.npmjs.com/package/mongoose
+ * @see https://www.npmjs.com/package/mongodb
+ */
 module.exports = router;

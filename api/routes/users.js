@@ -99,4 +99,22 @@ router.use((err, _req, res, _next) => {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: err.message });
 });
 
+/**
+ * A module that provides routes for the user API.
+ * @module UserRouter
+ * @name UserRouter
+ * @type {express.Router}
+ * @requires express
+ * @requires http-status-codes
+ * @requires ../models/task
+ * @requires ../models/user
+ * @requires ../models/reminder
+ * @see Task
+ * @see User
+ * @see Reminder
+ * @see http://expressjs.com/en/4x/api.html#router
+ * @see https://www.npmjs.com/package/http-status-codes
+ * @see https://www.npmjs.com/package/mongoose
+ * @see https://mongoosejs.com/docs/api.html
+ */
 module.exports = router;

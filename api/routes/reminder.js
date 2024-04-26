@@ -157,4 +157,20 @@ router.use((err, _req, res, _next) => {
     .send({ error: err.message });
 });
 
+/**
+ * A module that provides routes for the reminder API.
+ * @module ReminderRouter
+ * @name ReminderRouter
+ * @type {express.Router}
+ * @requires express
+ * @requires http-status-codes
+ * @requires ../models/user
+ * @requires ../models/reminder
+ * @see User
+ * @see Reminder
+ * @see http://expressjs.com/en/4x/api.html#router
+ * @see https://www.npmjs.com/package/http-status-codes
+ * @see https://mongoosejs.com/docs/models.html
+ * @see https://mongoosejs.com/docs/api/model.html
+ */
 module.exports = router;

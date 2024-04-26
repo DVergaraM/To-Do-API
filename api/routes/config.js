@@ -167,9 +167,19 @@ router.delete("/", async (req, res) => {
 
 router.use((err, _req, res, _next) => {
   console.error(err);
-  res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send({ error: err.message });
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: err.message });
 });
 
+/**
+ * A router object that handles config requests.
+ * @module ConfigRouter
+ * @name ConfigRouter
+ * @type {express.Router}
+ * @requires express
+ * @requires http-status-codes
+ * @requires ../models/config
+ * @see Config
+ * @see http://expressjs.com/en/4x/api.html#router
+ * @see https://www.npmjs.com/package/http-status-codes
+ */
 module.exports = router;

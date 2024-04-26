@@ -47,4 +47,19 @@ router.use((err, _req, res, _next) => {
     .send({ error: err.message });
 });
 
+/**
+ * A module that provides routes for the language API.
+ * @module LanguageRouter
+ * @name LanguageRouter
+ * @type {express.Router}
+ * @requires express
+ * @requires http-status-codes
+ * @requires ../models/config
+ * @see Config
+ * @see http://expressjs.com/en/4x/api.html#router
+ * @see https://www.npmjs.com/package/http-status-codes
+ * @see https://mongoosejs.com/docs/models.html
+ * @see https://mongoosejs.com/docs/guide.html
+ * @see https://mongoosejs.com/docs/api.html
+ */
 module.exports = router;
