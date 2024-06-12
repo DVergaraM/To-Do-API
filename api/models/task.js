@@ -49,11 +49,11 @@ taskSchema.plugin(AutoIncrement, {
  * @example
  * const Task = require("../models/task");
  * const task = new Task({
- * task: "Complete homework",
- * date: "2022-12-31",
- * guildID: "123",
- * userID: "456
- * status: false,
+ *    task: "Complete homework",
+ *    date: "2022-12-31",
+ *    guildID: "123",
+ *    userID: "456",
+ *    status: false,
  * });
  * task.save();
  * @returns {mongoose.Model} A model of a task.
